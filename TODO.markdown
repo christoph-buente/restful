@@ -1,0 +1,1 @@
+* remove requirement to call apiable in model classes. 
