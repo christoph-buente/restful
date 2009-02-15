@@ -1,5 +1,5 @@
 #
-# Attribute model.
+#  Attribute model.
 #
 module Restful
   module ApiModel

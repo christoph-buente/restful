@@ -1,5 +1,5 @@
 #
-# Resource model. Something like a DOM model for the api. 
+#  Resource model. Something like a DOM model for the api. 
 #
 module Restful
   module ApiModel
@@ -16,11 +16,11 @@ module Restful
       end
       
       def simple_attributes
-        values.select { |attribute| attribute.type == :simple_attributes }        
+        values.select { |attribute| attribute.type == :simple_attribute }        
       end
       
       def collections
-        values.select { |attribute| attribute.type == :collections }
+        values.select { |attribute| attribute.type == :collection }
       end
     end
   end

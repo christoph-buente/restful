@@ -1,3 +1,6 @@
+#
+#  Handle ActiveRecord associations and such like. 
+#
 module Restful
   module Rails
     module ActiveRecord
@@ -34,7 +37,7 @@ module Restful
             end
           end
         end
-    
+        
         module InstanceMethods
           def resolve_association_resource_url(association_key_name)
             self.class.cache_association_resource_url_metadata
@@ -60,6 +63,28 @@ module Restful
           
           def self.transform_link_name(name)
             name.gsub /_id$/, "_resource_url"
+          end
+          
+          # retruns non association / collection attributes. 
+          def self.simple_attributes_on(model)
+            attributes = model.attributes
+            
+            attributes.delete_if do |k, v|
+              model.class.apiable_association_table.keys.include?(k)
+            end
+          end
+          
+          # takes an ar model and a key like :people, and returns an array of resources. 
+          def self.convert_collection_to_resources(model, key, config = nil)
+            
+            # load the associated objects. 
+            # TODO: SHOULD not load the entire association, only the published attributes. 
+            models = model.send(key)
+            
+            # convert them to_api. 
+            models.map do |m|
+              config ? m.to_api(config) : m.to_api
+            end
           end
         end
       end

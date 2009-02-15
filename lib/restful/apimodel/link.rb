@@ -1,7 +1,5 @@
 #
-# Attribute model.
-# 
-#   TODO: define this
+#  Link model.
 #
 module Restful
   module ApiModel
