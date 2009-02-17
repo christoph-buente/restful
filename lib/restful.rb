@@ -7,6 +7,25 @@ require 'restful/apimodel/resource'
 require 'restful/apimodel/attribute'
 require 'restful/apimodel/collection'
 require 'restful/apimodel/link'
-require 'restful/serializers/base'
 require 'restful/serializers/xml_serializer'
 require 'restful/serializers/atom_like_serializer'
+
+module Restful
+  
+  #
+  #  Restful.hash_from_xml, #hash_from_atom_like. Methods correspond with
+  #  resgistered serializers. 
+  #
+  def self.method_missing(method, *args, &block)
+    if method.to_s.match(/^hash_from_(.*)$/)
+      if serializer_clazz = Restful::Serializers::Base.serializers[type = $1.to_sym]
+        s = serializer_clazz.new
+        s.deserialize(args.first)
+      else
+        super
+      end
+    else
+      super
+    end
+  end
+end

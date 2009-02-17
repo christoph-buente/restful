@@ -8,6 +8,7 @@ require 'active_record'
 require 'action_controller'
 require 'test/spec'
 require 'mocha'
+require 'hpricot'
 
 $:.unshift plugin_lib, plugin_test
 
@@ -46,4 +47,9 @@ Restful::Rails.api_hostname = "http://example.com:3000"
 def reset_config
   Person.restful_config = Restful::Rails::ActiveRecord::Configuration::Config.new
   Pet.restful_config = Restful::Rails::ActiveRecord::Configuration::Config.new  
+end
+
+# doing this tests that the content is the same regardless of attribute order etc. 
+def xml_should_be_same(expected, actual)
+  (Hpricot(expected).to_html == Hpricot(actual).to_html).should.equal true
 end

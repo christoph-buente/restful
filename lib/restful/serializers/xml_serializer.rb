@@ -1,3 +1,4 @@
+require 'restful/serializers/base'
 require 'builder'
 
 #
@@ -6,6 +7,8 @@ require 'builder'
 module Restful
   module Serializers
     class XMLSerializer < Base
+      
+      serializer_name :xml
       
       def serialize(resource, options = {})
         xml = options[:builder] || Builder::XmlMarkup.new(:indent => 2)
@@ -31,8 +34,9 @@ module Restful
         end       
       end
       
-      def deserialize
-        # doit
+      # follows xml_simple, so we can deserialize with that.
+      def deserialize(xml, options = {})
+        Hash.from_xml(xml)
       end
       
       protected

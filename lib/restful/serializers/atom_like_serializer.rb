@@ -1,3 +1,4 @@
+require 'restful/serializers/base'
 require 'builder'
 
 #
@@ -6,6 +7,13 @@ require 'builder'
 module Restful
   module Serializers
     class AtomLikeSerializer < XMLSerializer
+      
+      serializer_name :atom_like
+      
+      # not xml_simple format. need to convert links. 
+      def deserialize(xml, options = {})
+        
+      end
       
       protected
       
@@ -18,7 +26,7 @@ module Restful
           decorations = {}
           
           unless @nested_root
-            decorations =  { :"xml:base" => Restful::Rails.api_hostname } 
+            decorations =  { :"xml:base" => Restful::Rails.api_hostname } unless Restful::Rails.api_hostname.blank?
             @nested_root = true
           end
           

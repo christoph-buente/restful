@@ -4,12 +4,13 @@
 module Restful
   module Serializers
     class Base
+      cattr_accessor :serializers
       
-      def serialize # implement me. 
+      def serialize(resource, options = {}) # implement me. 
         raise NotImplementedError.new
       end
       
-      def deserialize # implement me. 
+      def deserialize(resource, options = {}) # implement me. 
         raise NotImplementedError.new        
       end
       
@@ -19,11 +20,12 @@ module Restful
       #    .serialize_to(:xml, Resource.new(:animal => "cow"))
       #
       def self.serializer(type)
-        
-        case type
-        when :xml : XMLSerializer.new
-        when :atom_like : AtomLikeSerializer.new
-        end
+        serializers[type].new
+      end
+      
+      def self.serializer_name(key)
+        self.serializers ||= {}
+        self.serializers[key] = self
       end
     end
   end

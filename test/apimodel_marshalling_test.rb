@@ -15,7 +15,7 @@ context "apimodel marshalling" do
   end
   
   specify "serialize to xml, rails style" do
-    xml = @person.to_restful.serialize_to(:xml)
+    actual = @person.to_restful.serialize_to(:xml)
     
     expected = <<EXPECTED
 <?xml version="1.0" encoding="UTF-8"?>
@@ -32,36 +32,41 @@ context "apimodel marshalling" do
 </person>
 EXPECTED
 
-    xml.should.equal expected  
+    xml_should_be_same(expected, actual)
   end
   
   specify "serialize to xml, atom style" do
-    xml = @person.to_restful.serialize_to(:atom_like)
+    actual = @person.to_restful.serialize_to(:atom_like)
     
     expected = <<EXPECTED    
 <?xml version="1.0" encoding="UTF-8"?>
 <person xml:base="http://example.com:3000">
-  <link href="http://example.com:3000/people/#{ @person.id }" rel="self"/>
+  <link rel="self" href="http://example.com:3000/people/#{ @person.id }"/>
   <name>Joe Bloggs</name>
   <current-location>Under a tree</current-location>
   <pets>
     <pet>
-      <link href="http://example.com:3000/pets/#{ @pet.id }" rel="self"/>
+      <link rel="self" href="http://example.com:3000/pets/#{ @pet.id }"/>
       <name></name>
     </pet>
   </pets>
 </person>
 EXPECTED
   
-    xml.should.equal expected   
+    xml_should_be_same(expected, actual)
   end
-
-  # specify "deserialize from rails style xml" do
-  #   flunk     
-  # end
   
-  # specify "deserialize from atom style xml" do
-  #   flunk     
-  # end
+  specify "deserialize from rails style xml" do
+    restful = @person.to_restful
+    xml = restful.serialize_to(:xml)
+    hash = Restful.hash_from_xml(xml)
+    # puts hash.inspect
+  end
+  
+  specify "deserialize from atom style xml" do
+    restful = @person.to_restful
+    xml = restful.serialize_to(:atom_like)
+    hash = Restful.hash_from_atom_like(xml)  
+  end
   
 end
