@@ -4,7 +4,7 @@
 module Restful
   module ApiModel
     class Collection < Attribute
-      def initialize(name, resources)
+      def initialize(name, resources, extended_type)
         super
         
         self.type = :collection

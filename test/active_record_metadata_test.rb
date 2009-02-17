@@ -9,6 +9,10 @@ context "active record metadata" do
     @pet = @person.pets.create(:name => "Mietze", :species => "cat")
   end
   
+  teardown do
+    reset_config
+  end
+  
   specify "should be able to convert a collection to an array of resources" do
     resources = Restful::Rails::ActiveRecord::MetadataTools::Utils.convert_collection_to_resources(@person, :pets)
     pet = resources.first

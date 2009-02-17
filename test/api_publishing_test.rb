@@ -1,6 +1,10 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
 context "api publishing" do
+  teardown do
+    reset_config
+  end
+   
   specify "should result in a method .published?(:attr_key) return true for published attributes" do
     Pet.restful_publish(:person_id, :name) # person_id gets converted to a link automagically.
     
@@ -11,6 +15,10 @@ context "api publishing" do
 end
 
 context "api publishing with nesting" do
+  teardown do
+    reset_config
+  end
+ 
   specify "should result in a method .published?(:attr_key) return true for nested attributes" do
     Person.restful_publish(:name, :pets => [:name, :species])
     
@@ -19,7 +27,7 @@ context "api publishing with nesting" do
   
   specify "should be invoke to_api on the nested model with the specified nested attributes" do
     Person.restful_publish(:name, :pets => [:name, :species])    
-    @person = Person.create(:name => "Joe Bloggs", :current_location => "On the Toilet")
+    @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
     @pet = @person.pets.create(:name => "Mietze", :species => "cat")
     
     Pet.any_instance.expects(:to_api).with { |arg| arg.fields == [:name, :species] }

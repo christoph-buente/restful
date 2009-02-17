@@ -37,3 +37,11 @@ end
 require plugin_root + '/init'
 require 'models/pet'
 require 'models/person'
+
+#
+#  Helper methods
+#
+def reset_config
+  Person.restful_config = Restful::Rails::ActiveRecord::Configuration::Config.new
+  Pet.restful_config = Restful::Rails::ActiveRecord::Configuration::Config.new  
+end
