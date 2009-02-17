@@ -15,17 +15,17 @@ context "apimodel marshalling" do
   end
   
   specify "serialize to xml, rails style" do
-    xml = @person.to_api.serialize_to(:xml)
+    xml = @person.to_restful.serialize_to(:xml)
     
     expected = <<EXPECTED
 <?xml version="1.0" encoding="UTF-8"?>
 <person>
-  <resource_url type="link">/people/#{ @person.id }</resource_url>
+  <resource_url type="link">http://example.com:3000/people/#{ @person.id }</resource_url>
   <name>Joe Bloggs</name>
   <current-location>Under a tree</current-location>
   <pets type="array">
     <pet>
-      <resource_url type="link">/pets/#{ @pet.id }</resource_url>
+      <resource_url type="link">http://example.com:3000/pets/#{ @pet.id }</resource_url>
       <name nil="true"></name>
     </pet>
   </pets>
@@ -36,18 +36,18 @@ EXPECTED
   end
   
   specify "serialize to xml, atom style" do
-    xml = @person.to_api.serialize_to(:atom_pub)
+    xml = @person.to_restful.serialize_to(:atom_like)
     
-    expected = <<EXPECTED
+    expected = <<EXPECTED    
 <?xml version="1.0" encoding="UTF-8"?>
-<person>
-  <link href="/people/#{ @person.id }" rel="self"/>
+<person xml:base="http://example.com:3000">
+  <link href="http://example.com:3000/people/#{ @person.id }" rel="self"/>
   <name>Joe Bloggs</name>
   <current-location>Under a tree</current-location>
-  <pets type="array">
+  <pets>
     <pet>
-      <link href="/pets/#{ @pet.id }" rel="self"/>
-      <name nil="true"></name>
+      <link href="http://example.com:3000/pets/#{ @pet.id }" rel="self"/>
+      <name></name>
     </pet>
   </pets>
 </person>

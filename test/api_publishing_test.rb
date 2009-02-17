@@ -25,13 +25,13 @@ context "api publishing with nesting" do
     Person.restful_config.published?(:pets).should.equal true
   end
   
-  specify "should be invoke to_api on the nested model with the specified nested attributes" do
+  specify "should be invoke to_restful on the nested model with the specified nested attributes" do
     Person.restful_publish(:name, :pets => [:name, :species])    
     @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
     @pet = @person.pets.create(:name => "Mietze", :species => "cat")
     
-    Pet.any_instance.expects(:to_api).with { |arg| arg.fields == [:name, :species] }
-    @person.to_api
+    Pet.any_instance.expects(:to_restful).with { |arg| arg.fields == [:name, :species] }
+    @person.to_restful
   end
 end
 

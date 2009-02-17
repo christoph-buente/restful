@@ -22,7 +22,7 @@ module Restful
         
         case type
         when :xml : XMLSerializer.new
-        when :atom_pub : AtomPubSerializer.new
+        when :atom_like : AtomLikeSerializer.new
         end
       end
     end

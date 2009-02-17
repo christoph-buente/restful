@@ -81,9 +81,9 @@ module Restful
             # TODO: SHOULD not load the entire association, only the published attributes. 
             models = model.send(key)
             
-            # convert them to_api. 
+            # convert them to_restful. 
             models.map do |m|
-              config ? m.to_api(config) : m.to_api
+              config ? m.to_restful(config) : m.to_restful
             end
           end
         end

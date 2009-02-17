@@ -33,9 +33,9 @@ module Restful
           #
           #  converts this AR object to an apimodel object. per default, only the
           #  attributes in self.class.restful_config are shown. this can be overriden
-          #  by passing in something like @pet.to_api(:name, :species).
+          #  by passing in something like @pet.to_restful(:name, :species).
           #
-          def to_api(attributes = self.class.restful_config)
+          def to_restful(attributes = self.class.restful_config)
             
             # convert to config object if not already one
             if attributes && !attributes.is_a?(Config)

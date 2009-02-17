@@ -18,18 +18,18 @@ context "active record metadata" do
     pet = resources.first
 
     resources.size.should.equal 1    
-    pet.url.should.equal @pet.to_api.url
+    pet.url.should.equal @pet.to_restful.url
   end
 
   specify "should return link attributes from a model" do
-    @pet.to_api.links.map { |node| node.name }.sort.should.equal [:person_id]
+    @pet.to_restful.links.map { |node| node.name }.sort.should.equal [:person_id]
   end
   
   specify "should return plain attributes from a model" do
-    @pet.to_api.simple_attributes.map { |node| node.name }.sort.should.equal [:name]
+    @pet.to_restful.simple_attributes.map { |node| node.name }.sort.should.equal [:name]
   end
   
   specify "should return collections attributes from a model" do
-    @person.to_api.collections.map { |node| node.name }.sort.should.equal [:pets]
+    @person.to_restful.collections.map { |node| node.name }.sort.should.equal [:pets]
   end
 end

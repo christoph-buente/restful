@@ -38,6 +38,8 @@ require plugin_root + '/init'
 require 'models/pet'
 require 'models/person'
 
+Restful::Rails.api_hostname = "http://example.com:3000"
+
 #
 #  Helper methods
 #
