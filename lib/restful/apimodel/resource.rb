@@ -4,10 +4,12 @@
 module Restful
   module ApiModel
     class Resource
-      attr_accessor :url, :values, :name
+      attr_accessor :base, :path, :url, :values, :name
       
-      def initialize(url, name)
-        self.url = url
+      def initialize(name, url)
+        self.url = url[:url]
+        self.path = url[:path]
+        self.base = url[:base]                
         self.name = name
         self.values = []
       end

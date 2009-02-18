@@ -42,7 +42,7 @@ module Restful
       protected
       
         def add_link_to(resource, builder, options = {})
-          builder.tag!("resource_url", resource.url, :type => "link")
+          builder.tag!("restful_url", resource.url, :type => "link")
         end
       
         def add_tag(builder, value)

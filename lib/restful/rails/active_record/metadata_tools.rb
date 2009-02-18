@@ -16,11 +16,11 @@ module Restful
         
         module ClassMethods
           def apiable
-            cache_association_resource_url_metadata
+            cache_association_restful_url_metadata
             apiable_shadow_link_attributes(self)
           end
 
-          def cache_association_resource_url_metadata
+          def cache_association_restful_url_metadata
             self.apiable_associations ||= (self.reflect_on_all_associations(:belongs_to) + self.reflect_on_all_associations(:has_one)).flatten.uniq
             self.apiable_association_table ||= self.apiable_associations.inject({}) { |memo, reflection| memo[reflection.primary_key_name] = reflection; memo }
           end
@@ -39,12 +39,12 @@ module Restful
         end
         
         module InstanceMethods
-          def resolve_association_resource_url(association_key_name)
-            self.class.cache_association_resource_url_metadata
+          def resolve_association_restful_url(association_key_name)            
+            self.class.cache_association_restful_url_metadata
 
             if reflection = self.class.apiable_association_table[association_key_name]
               related_resource = self.send(reflection.name)
-              related_resource ? related_resource.resource_url : ""
+              [Restful::Rails.api_hostname, related_resource.restful_path] if related_resource
             end
           end
         end
@@ -62,7 +62,7 @@ module Restful
           end
           
           def self.transform_link_name(name)
-            name.gsub /_id$/, "_resource_url"
+            name.gsub /_id$/, "_restful_url"
           end
           
           # retruns non association / collection attributes. 

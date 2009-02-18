@@ -45,10 +45,13 @@ module Restful
             Restful::Converters::ActiveRecord.convert(self, attributes)
           end
           
-          # simple method through which a model should know it's own name. override 
-          # this where necessary. 
-          def resource_url(url_base = Restful::Rails.api_hostname)
-            "#{ url_base }/#{ self.class.to_s.tableize }/#{ self.to_param }"
+          # simple method through which a model should know it's own name. override this where necessary. 
+          def restful_url(url_base = Restful::Rails.api_hostname)
+            "#{ url_base }#{ restful_path }"
+          end
+          
+          def restful_path
+            "/#{ self.class.to_s.tableize }/#{ self.to_param }"
           end
         end
         

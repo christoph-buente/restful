@@ -26,7 +26,7 @@ context "active record metadata" do
   end
   
   specify "should return plain attributes from a model" do
-    @pet.to_restful.simple_attributes.map { |node| node.name }.sort.should.equal [:name]
+    @pet.to_restful.simple_attributes.map { |node| node.name }.should.equal [:name]
   end
   
   specify "should return collections attributes from a model" do

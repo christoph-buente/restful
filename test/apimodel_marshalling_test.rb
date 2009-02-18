@@ -20,12 +20,12 @@ context "apimodel marshalling" do
     expected = <<EXPECTED
 <?xml version="1.0" encoding="UTF-8"?>
 <person>
-  <resource_url type="link">http://example.com:3000/people/#{ @person.id }</resource_url>
+  <restful_url type="link">http://example.com:3000/people/#{ @person.id }</restful_url>
   <name>Joe Bloggs</name>
   <current-location>Under a tree</current-location>
   <pets type="array">
     <pet>
-      <resource_url type="link">http://example.com:3000/pets/#{ @pet.id }</resource_url>
+      <restful_url type="link">http://example.com:3000/pets/#{ @pet.id }</restful_url>
       <name nil="true"></name>
     </pet>
   </pets>
@@ -41,18 +41,18 @@ EXPECTED
     expected = <<EXPECTED    
 <?xml version="1.0" encoding="UTF-8"?>
 <person xml:base="http://example.com:3000">
-  <link rel="self" href="http://example.com:3000/people/#{ @person.id }"/>
+  <link rel="self" href="/people/#{ @person.id }"/>
   <name>Joe Bloggs</name>
   <current-location>Under a tree</current-location>
   <pets>
     <pet>
-      <link rel="self" href="http://example.com:3000/pets/#{ @pet.id }"/>
+      <link rel="self" href="/pets/#{ @pet.id }"/>
       <name></name>
     </pet>
   </pets>
 </person>
 EXPECTED
-  
+
     xml_should_be_same(expected, actual)
   end
   

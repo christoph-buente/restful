@@ -4,14 +4,21 @@
 module Restful
   module Converters
     class ActiveRecord
-      def self.convert(model, attributes)
-        resource = Restful::ApiModel::Resource.new(model.resource_url, model.class.to_s.tableize.singularize)
+      def self.convert(model, attributes, options = {})
+        
+        resource = Restful::ApiModel::Resource.new(
+          model.class.to_s.tableize.singularize, { 
+            :base => Restful::Rails.api_hostname, 
+            :path => model.restful_path,
+            :url => model.restful_url
+          }
+        )
         
         # Links
         resource.values += model.class.apiable_association_table.keys.map do |key|
           if attributes.published?(key.to_sym)
-            url = model.resolve_association_resource_url(key)
-            Restful::ApiModel::Link.new(key.to_sym, url, compute_extended_type(model, key))
+            base, path = model.resolve_association_restful_url(key)
+            Restful::ApiModel::Link.new(key.to_sym, base, path, compute_extended_type(model, key))
           end
         end.compact
                 
