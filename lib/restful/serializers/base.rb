@@ -27,6 +27,15 @@ module Restful
         self.serializers ||= {}
         self.serializers[key] = self
       end
+      
+      protected
+        def transform_link_name(name)
+          name.to_s.gsub /_id$/, "-restful-url"
+        end
+      
+        def revert_link_name(name)
+          name.to_s.gsub /-restful-url$/, "_id"
+        end      
     end
   end
 end

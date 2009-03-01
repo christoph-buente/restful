@@ -11,8 +11,7 @@ module Restful
             :base => Restful::Rails.api_hostname, 
             :path => model.restful_path,
             :url => model.restful_url
-          }
-        )
+        })
         
         # Links
         resource.values += model.class.apiable_association_table.keys.map do |key|
@@ -33,8 +32,8 @@ module Restful
                 
         # Collections
         resource.values += model.class.reflections.keys.map do |key|
-          if attributes.published?(key.to_sym)
-      
+          if attributes.published?(key.to_sym) 
+            
             # grab the associated resource(s) and run them through conversion
             resources = Restful::Rails::ActiveRecord::MetadataTools::Utils.convert_collection_to_resources(model, key, attributes.nested(key.to_sym))
             Restful::ApiModel::Collection.new(key.to_sym, resources, compute_extended_type(model, key))

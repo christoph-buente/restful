@@ -17,7 +17,6 @@ module Restful
         module ClassMethods
           def apiable
             cache_association_restful_url_metadata
-            apiable_shadow_link_attributes(self)
           end
 
           def cache_association_restful_url_metadata
@@ -25,16 +24,8 @@ module Restful
             self.apiable_association_table ||= self.apiable_associations.inject({}) { |memo, reflection| memo[reflection.primary_key_name] = reflection; memo }
           end
           
-          #
-          # creates an attribute named <association name>-resource-url which 'shadows'
-          # the actual attribute (is available on the model as an attribute)
-          #
-          def apiable_shadow_link_attributes(clazz)
-            clazz.apiable_association_table.keys.each do |ass_key|
-              clazz.send :define_method, "#{ MetadataTools::Utils::transform_link_name(ass_key) }=" do |value|
-                self.send("#{ ass_key }=", dereference(value))
-              end
-            end
+          def find_by_restful(id)
+            find(id)
           end
         end
         
@@ -51,18 +42,14 @@ module Restful
 
         module  Utils
           def self.dereference(url)
-            m, resource, params = *url.match(Regexp.new("#{ Restful::Rails.api_hostname }\/(.*)\/(.*)"))
-
+            regexp = Regexp.new("#{ Restful::Rails.api_hostname }\/(.*)\/(.*)")
+            m, resource, params = *url.match(regexp)
             resource = if resource && params
               clazz = resource.try(:singularize).try(:camelize).try(:constantize)
-              clazz.find_by_param(params) if clazz 
+              clazz.find_by_restful(params) if clazz 
             end
 
             resource ? resource.id : 0
-          end
-          
-          def self.transform_link_name(name)
-            name.gsub /_id$/, "_restful_url"
           end
           
           # retruns non association / collection attributes. 
@@ -82,7 +69,7 @@ module Restful
             models = model.send(key)
             
             # convert them to_restful. 
-            models.map do |m|
+            models.map do |m| 
               config ? m.to_restful(config) : m.to_restful
             end
           end

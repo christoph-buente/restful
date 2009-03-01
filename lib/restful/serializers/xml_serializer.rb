@@ -27,6 +27,8 @@ module Restful
                 end              
               end
               
+            elsif value.type == :link
+              add_link_to(value, xml)
             else # plain ole
               add_tag(xml, value)
             end
@@ -34,15 +36,17 @@ module Restful
         end       
       end
       
-      # follows xml_simple, so we can deserialize with that.
+      # returns a resource, or collection of resources. 
       def deserialize(xml, options = {})
-        Hash.from_xml(xml)
+        build_resource(REXML::Document.new(xml).root)
       end
       
       protected
       
         def add_link_to(resource, builder, options = {})
-          builder.tag!("restful_url", resource.url, :type => "link")
+          is_self = !!options[:self]
+          
+          builder.tag!((is_self ? "restful-url" : transform_link_name(resource.name)), resource.url, :type => "link")
         end
       
         def add_tag(builder, value)
@@ -77,6 +81,25 @@ module Restful
         
         def root_element(resource, options = {})
           [resource.name]
+        end
+        
+        # turns a rexml node into a Resource
+        def build_resource(node)
+          resource = Restful::ApiModel::Resource.new(node.name, :url => node.delete_element("restful-url").try(:text))
+          
+          node.elements.each do |el|
+            type = (el.attributes["type"] || "string").to_sym
+            resource.values << case type
+            
+            when :link : Restful::ApiModel::Link.new(revert_link_name(el.name), nil, el.text, type)
+            when :array
+              Restful::ApiModel::Collection.new(el.name, el.elements.map { |child| build_resource(child) }, type)
+            else 
+              Restful::ApiModel::Attribute.new(el.name, el.text, type)
+            end
+          end
+
+          resource
         end
     end
   end
