@@ -9,11 +9,11 @@ module Restful
       def initialize(name, base, path, extended_type)        
         self.base = base
         self.path = path
-        super(name, self.url, extended_type)
+        super(name, self.full_url, extended_type)
         self.type = :link
       end
       
-      def url
+      def full_url
         base.blank? ? path : "#{ base }#{ path }"
       end
     end

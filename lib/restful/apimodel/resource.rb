@@ -37,6 +37,10 @@ module Restful
         serializer = Restful::Serializers::Base.serializer(type)
         serializer.deserialize(self)
       end
+      
+      def full_url
+        base.blank? ? url : "#{ base }#{ path }"
+      end
     end
   end
 end

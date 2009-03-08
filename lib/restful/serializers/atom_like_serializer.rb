@@ -10,13 +10,24 @@ module Restful
       
       serializer_name :atom_like
       
-      # not xml_simple format. need to convert links. 
-      def deserialize(xml, options = {})
-        super
-      end
-      
       protected
+        
+        def root_resource(node)
+          url_base = node.attribute(:base, :xml)
+          me_node = node.delete_element("link[@rel='self']")
+          own_url = me_node.attribute(:href)
+          Restful::ApiModel::Resource.new(node.name, :path => own_url, :base => url_base)
+        end
       
+        def build_link(el, type)
+          Restful::ApiModel::Link.new(revert_link_name(el.attribute('rel')), nil, el.attribute('href'), type)
+        end
+        
+        def calculate_node_type(el)
+          return :link if el.name.downcase == "link"
+          (el.attributes["type"] || "string").to_sym
+        end
+                
         def add_link_to(resource, builder, options = {})
           is_self = !!options[:self]
           builder.tag!("link", { :href => resource.path, :rel => (is_self ? "self" : resource.name) })

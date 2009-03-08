@@ -46,7 +46,7 @@ module Restful
         def add_link_to(resource, builder, options = {})
           is_self = !!options[:self]
           
-          builder.tag!((is_self ? "restful-url" : transform_link_name(resource.name)), resource.url, :type => "link")
+          builder.tag!((is_self ? "restful-url" : transform_link_name(resource.name)), resource.full_url, :type => "link")
         end
       
         def add_tag(builder, value)
@@ -85,13 +85,13 @@ module Restful
         
         # turns a rexml node into a Resource
         def build_resource(node)
-          resource = Restful::ApiModel::Resource.new(node.name, :url => node.delete_element("restful-url").try(:text))
+          resource = root_resource(node)
           
           node.elements.each do |el|
-            type = (el.attributes["type"] || "string").to_sym
+            type = calculate_node_type(el)
             resource.values << case type
             
-            when :link : Restful::ApiModel::Link.new(revert_link_name(el.name), nil, el.text, type)
+            when :link : build_link(el, type)
             when :array
               Restful::ApiModel::Collection.new(el.name, el.elements.map { |child| build_resource(child) }, type)
             else 
@@ -100,6 +100,19 @@ module Restful
           end
 
           resource
+        end
+        
+        def calculate_node_type(el)
+          (el.attributes["type"] || "string").to_sym
+        end
+        
+        def build_link(el, type)
+          Restful::ApiModel::Link.new(revert_link_name(el.name), nil, el.text, type)
+        end
+        
+        def root_resource(node)
+          url = node.delete_element("restful-url").try(:text)
+          Restful::ApiModel::Resource.new(node.name, :url => url)
         end
     end
   end
