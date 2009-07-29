@@ -3,6 +3,7 @@ plugin_root = File.join plugin_test, '..'
 plugin_lib = File.join plugin_root, 'lib'
 
 require 'rubygems'
+require 'ruby-debug'
 require 'active_support'
 require 'active_record'
 require 'action_controller'
@@ -32,14 +33,31 @@ silence_stream(STDOUT) do
       t.string :name
       t.string :current_location
     end
+
+    create_table :sexes do |t|
+      t.string :sex
+      t.integer :person_id
+    end
   end
 end
 
 require plugin_root + '/init'
 require 'models/pet'
+require 'models/sex'
 require 'models/person'
 
 Restful::Rails.api_hostname = "http://example.com:3000"
+
+def create_examples
+  Person.restful_publish(:name, :current_location, :pets, :sex)
+  Pet.restful_publish(:name, :person_id)
+  Sex.restful_publish(:sex)
+
+  @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
+  @pet = @person.pets.create(:species => "cat")
+  @sex = @person.sex = Sex.new(:sex => "male")
+  @serializer = Restful::Serializers::XMLSerializer.new
+end
 
 #
 #  Helper methods

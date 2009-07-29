@@ -1,5 +1,7 @@
 require 'restful/serializers/base'
+require "rexml/document"
 require 'builder'
+require 'ruby-debug'
 
 #
 #  Converts an APIModel to and from XML. 
@@ -29,6 +31,8 @@ module Restful
               
             elsif value.type == :link
               add_link_to(value, xml)
+            elsif value.type == :resource
+              serialize(value, {:instruct => false, :builder => xml})
             else # plain ole
               add_tag(xml, value)
             end
@@ -92,6 +96,8 @@ module Restful
             resource.values << case type
             
             when :link : build_link(el, type)
+            when :resource
+              build_resource(el)
             when :array
               Restful::ApiModel::Collection.new(el.name, el.elements.map { |child| build_resource(child) }, type)
             else 
@@ -103,7 +109,11 @@ module Restful
         end
         
         def calculate_node_type(el)
-          (el.attributes["type"] || "string").to_sym
+          if el.children.size > 1 && el.attributes["type"].blank? 
+            return :resource
+          else
+            (el.attributes["type"] || "string").to_sym
+          end
         end
         
         def build_link(el, type)

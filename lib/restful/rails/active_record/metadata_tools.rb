@@ -69,7 +69,7 @@ module Restful
             models = model.send(key)
             
             # convert them to_restful. 
-            models.map do |m| 
+            [*models].map do |m| 
               config ? m.to_restful(config) : m.to_restful
             end
           end
