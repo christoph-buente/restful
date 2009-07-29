@@ -7,6 +7,16 @@ Aims to provide a production quality Rest API to your Rails app, with the follow
   * all resources are referred to by url and not by id; expose a "web of resources"
   
 # Serializers
+Getting started
+===============
+In order to make your models apiable add
+
+`apiable`
+
+to your model. Next, define which properties you want to export, so within the model write something like:
+
+`self.restful_publish(:name, :current-location, :pets)`
+
 
 Rails-like
 ==========
