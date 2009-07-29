@@ -4,7 +4,7 @@ context "apimodel marshalling" do
   
   setup do 
     Person.restful_publish(:name, :current_location, :pets, :sex)
-    Pet.restful_publish(:name, :person_id)
+    Pet.restful_publish(:name)
     Sex.restful_publish(:sex)
     
     @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
@@ -32,7 +32,6 @@ context "apimodel marshalling" do
   <pets type="array">
     <pet>
       <restful-url type="link">http://example.com:3000/pets/#{ @pet.id }</restful-url>
-      <person-restful-url type="link">http://example.com:3000/people/#{ @person.id }</person-restful-url>
       <name nil="true"></name>
     </pet>
   </pets>
@@ -57,7 +56,6 @@ EXPECTED
   <pets>
     <pet>
       <link rel="self" href="/pets/#{ @pet.id }"/>
-      <link rel="person_id" href="/people/#{ @person.id }" />
       <name></name>
     </pet>
   </pets>
@@ -104,5 +102,31 @@ EXPECTED
     actual = serializer.serialize(resource)
     
     xml_should_be_same(expected, actual)
+  end
+
+  specify "serialize to params" do
+    actual = @person.to_restful.serialize_to(:params)
+    
+    expected = 
+      {
+        :name => "Joe Bloggs",
+        :current_location => "Under a tree",
+        :sex_attributes => {
+          :sex => "male"
+        },
+        :pets_attributes => [ {:name => nil} ]
+      }
+
+    actual.should.== expected
+  end
+
+  specify "deserialize from params" do
+    restful = @person.to_restful
+    expected = restful.serialize_to(:params)
+    serializer = Restful::Serializers::ParamsSerializer.new
+    resource = serializer.deserialize(expected)
+    actual = Person.create(expected).to_restful.serialize_to(:params)
+    
+    actual.should.== expected
   end
 end
