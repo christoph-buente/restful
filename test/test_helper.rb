@@ -59,6 +59,26 @@ def create_examples
   @serializer = Restful::Serializers::XMLSerializer.new
 end
 
+# little convenience when starting irb: it executes some example object automatically:
+if ENV['IRB_TEST_ENVIRONMENT']
+  Person.restful_publish(:name, :current_location, :pets, :sex)
+  Pet.restful_publish(:name, :person_id)
+  Sex.restful_publish(:sex)
+
+  @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
+  @pet = @person.pets.create(:species => "cat")
+  @sex = @person.sex = Sex.new(:sex => "male")
+  @xml_serializer = Restful::Serializers::XMLSerializer.new
+  @params_serializer = Restful::Serializers::XMLSerializer.new
+  @atom_like_serializer = Restful::Serializers::AtomLikeSerializer.new
+
+  puts "You have the following objects available for playing around:"
+  puts "@person, @pet, @sex, @xml_serializer, @params_serializer, @atom_like_serializer" 
+  puts 
+  puts 
+end
+
+
 #
 #  Helper methods
 #

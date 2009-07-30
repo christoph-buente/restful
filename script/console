@@ -1,0 +1,1 @@
+IRB_TEST_ENVIRONMENT=true irb -r 'test/test_helper'
