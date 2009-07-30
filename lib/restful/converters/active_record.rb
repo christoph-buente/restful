@@ -34,11 +34,12 @@ module Restful
         resource.values += model.class.reflections.keys.map do |key|
           if attributes.published?(key.to_sym) 
             # grab the associated resource(s) and run them through conversion
-            resources = Restful::Rails::ActiveRecord::MetadataTools::Utils.convert_collection_to_resources(model, key, attributes.nested(key.to_sym))
-            if model.class.reflections[key].macro == :has_many
-              Restful::ApiModel::Collection.new(key.to_sym, resources, compute_extended_type(model, key))
-            elsif model.class.reflections[key].macro == :has_one
-              resources.first
+            if resources = Restful::Rails::ActiveRecord::MetadataTools::Utils.convert_collection_to_resources(model, key, attributes.nested(key.to_sym))
+              if model.class.reflections[key].macro == :has_many
+                Restful::ApiModel::Collection.new(key.to_sym, resources, compute_extended_type(model, key))
+              elsif model.class.reflections[key].macro == :has_one
+                resources.first
+              end
             end
           end
         end.compact

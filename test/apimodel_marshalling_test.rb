@@ -10,10 +10,22 @@ context "apimodel marshalling" do
     @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
     @pet = @person.pets.create(:species => "cat")
     @sex = @person.sex = Sex.new(:sex => "male")
+
   end
   
   teardown do
     reset_config
+  end
+
+  specify "should be able to handle relations that are nil/null" do
+    @person.sex = nil
+    @person.save!
+    @person.reload
+
+    assert_nothing_raised do
+      @person.to_restful
+    end
+
   end
   
   specify "serialize to xml, rails style" do
@@ -50,7 +62,7 @@ EXPECTED
   <name>Joe Bloggs</name>
   <current-location>Under a tree</current-location>
   <sex>
-    <link rel="self" href="/sexes/2"/>
+    <link rel="self" href="/sexes/#{ @sex.id }"/>
     <sex>male</sex>
   </sex>
   <pets>
