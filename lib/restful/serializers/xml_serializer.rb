@@ -68,7 +68,7 @@ module Restful
             decorations[:encoding] = 'base64'
           end
 
-          if value.extended_type != :string
+          if value.extended_type != :string and value.extended_type != :notype
             decorations[:type] = type
           end
 

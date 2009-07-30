@@ -42,6 +42,8 @@ module Restful
               elsif model.class.reflections[key].macro == :has_one
                 resources.first
               end
+            else
+              Restful::ApiModel::Attribute.new(key.to_sym, nil, :notype)
             end
           end
         end.compact

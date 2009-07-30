@@ -29,8 +29,20 @@ context "apimodel marshalling" do
 
   end
 
-  specify "should throw senseful exception if a relation is no apiable" do 
-    @person.to_restful(:haircut)
+  specify "should create element with nil='true' attribute if no relation is set" do 
+    @person.haircut = nil
+    @person.save
+
+    actual = @person.to_restful(:haircut).serialize_to(:xml)
+    expected = <<EXPECTED
+<?xml version="1.0" encoding="UTF-8"?>
+<person>
+  <restful-url type="link">http://example.com:3000/people/#{ @person.id }</restful-url>
+  <haircut nil="true"></haircut>
+</person>
+EXPECTED
+
+    xml_should_be_same(expected, actual)
   end
   
   specify "serialize to xml, rails style" do
