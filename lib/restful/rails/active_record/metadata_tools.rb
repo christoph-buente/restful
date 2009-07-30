@@ -57,7 +57,7 @@ module Restful
             attributes = model.attributes
             
             attributes.delete_if do |k, v|
-              model.class.apiable_association_table.keys.include?(k)
+              model.class.apiable_association_table && model.class.apiable_association_table.keys.include?(k)
             end
           end
           
@@ -71,7 +71,11 @@ module Restful
             # convert them to_restful. 
             if models
               [*models].map do |m| 
-                config ? m.to_restful(config) : m.to_restful
+                if m.respond_to? :to_restful
+                  config ? m.to_restful(config) : m.to_restful
+                else
+                  raise "Seems as if you want to export the relation #{ key } of an #{ model.class.to_s } object without making #{ key } apiable ... please correct or elsewise I'll -- nevermind: your problem"
+                end
               end
             end
           end

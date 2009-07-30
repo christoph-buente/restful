@@ -38,6 +38,11 @@ silence_stream(STDOUT) do
       t.string :sex
       t.integer :person_id
     end
+
+    create_table :haircuts do |t|
+      t.string :style
+      t.integer :person_id
+    end
   end
 end
 
@@ -45,19 +50,10 @@ require plugin_root + '/init'
 require 'models/pet'
 require 'models/sex'
 require 'models/person'
+require 'models/haircut'
 
 Restful::Rails.api_hostname = "http://example.com:3000"
 
-def create_examples
-  Person.restful_publish(:name, :current_location, :pets, :sex)
-  Pet.restful_publish(:name, :person_id)
-  Sex.restful_publish(:sex)
-
-  @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
-  @pet = @person.pets.create(:species => "cat")
-  @sex = @person.sex = Sex.new(:sex => "male")
-  @serializer = Restful::Serializers::XMLSerializer.new
-end
 
 # little convenience when starting irb: it executes some example object automatically:
 if ENV['IRB_TEST_ENVIRONMENT']
@@ -68,12 +64,13 @@ if ENV['IRB_TEST_ENVIRONMENT']
   @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
   @pet = @person.pets.create(:species => "cat")
   @sex = @person.sex = Sex.new(:sex => "male")
+  @haircut = @person.haircut = Haircut.new(:style => "fieser Scheitel")
   @xml_serializer = Restful::Serializers::XMLSerializer.new
   @params_serializer = Restful::Serializers::XMLSerializer.new
   @atom_like_serializer = Restful::Serializers::AtomLikeSerializer.new
 
   puts "You have the following objects available for playing around:"
-  puts "@person, @pet, @sex, @xml_serializer, @params_serializer, @atom_like_serializer" 
+  puts "@person, @pet, @sex, @haircut, @xml_serializer, @params_serializer, @atom_like_serializer" 
   puts 
   puts 
 end

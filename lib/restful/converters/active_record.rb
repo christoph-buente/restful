@@ -14,12 +14,14 @@ module Restful
         })
         
         # Links
-        resource.values += model.class.apiable_association_table.keys.map do |key|
-          if attributes.published?(key.to_sym)
-            base, path = model.resolve_association_restful_url(key)
-            Restful::ApiModel::Link.new(key.to_sym, base, path, compute_extended_type(model, key))
-          end
-        end.compact
+        if model.class.apiable_association_table
+          resource.values += model.class.apiable_association_table.keys.map do |key|
+            if attributes.published?(key.to_sym)
+              base, path = model.resolve_association_restful_url(key)
+              Restful::ApiModel::Link.new(key.to_sym, base, path, compute_extended_type(model, key))
+            end
+          end.compact
+        end
                 
         # Simple attributes
         resource.values += Restful::Rails::ActiveRecord::MetadataTools::Utils.simple_attributes_on(model).map do |attribute|

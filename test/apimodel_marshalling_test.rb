@@ -10,6 +10,7 @@ context "apimodel marshalling" do
     @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
     @pet = @person.pets.create(:species => "cat")
     @sex = @person.sex = Sex.new(:sex => "male")
+    @haircut = @person.haircut = Haircut.new(:style => "fieser Scheitel")
 
   end
   
@@ -26,6 +27,10 @@ context "apimodel marshalling" do
       @person.to_restful
     end
 
+  end
+
+  specify "should throw senseful exception if a relation is no apiable" do 
+    @person.to_restful(:haircut)
   end
   
   specify "serialize to xml, rails style" do
