@@ -72,6 +72,10 @@ module Restful
             decorations[:type] = type
           end
 
+          if value.extended_type == :datetime
+            decorations[:type] = :datetime
+          end
+
           if value.value.nil?
             decorations[:nil] = true
           end
