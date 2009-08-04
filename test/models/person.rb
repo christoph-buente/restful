@@ -1,10 +1,13 @@
 class Person < ActiveRecord::Base
   has_many :pets
-  belongs_to  :sex
-  belongs_to  :haircut
+  has_one  :wallet
 
   accepts_nested_attributes_for :pets
-  accepts_nested_attributes_for :sex
+  accepts_nested_attributes_for :wallet
+  
+  def oldest_pet
+    pets.first :order => "age DESC"
+  end
   
   apiable
 end

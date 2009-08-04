@@ -58,6 +58,10 @@ module Restful
           if attributes.published?(method_name.to_sym) and not published.include?(method_name.to_sym)
             value = model.send(method_name.to_sym)
               if value.is_a? ::ActiveRecord::Base
+                
+                #
+                #   FIXME!!!!!!!!!!!!!!!!!
+                #
                 value.to_restful
               else
                 Restful::ApiModel::Attribute.new(method_name.to_sym, value, compute_extended_type(model, method_name))

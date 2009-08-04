@@ -24,6 +24,7 @@ ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :dbfile  => ":mem
 silence_stream(STDOUT) do
   ActiveRecord::Schema.define do
     create_table :pets do |t|
+      t.integer :age, :default => 10
       t.string :name
       t.integer :species
       t.integer :person_id
@@ -32,25 +33,19 @@ silence_stream(STDOUT) do
     create_table :people do |t|
       t.string :name
       t.string :current_location
-      t.integer :sex_id
-      t.integer :haircut_id 
     end
 
-    create_table :sexes do |t|
-      t.string :sex
-    end
-
-    create_table :haircuts do |t|
-      t.string :style
+    create_table :wallets do |t|
+      t.string :person_id
+      t.string :contents
     end
   end
 end
 
 require plugin_root + '/init'
 require 'models/pet'
-require 'models/sex'
+require 'models/wallet'
 require 'models/person'
-require 'models/haircut'
 
 Restful::Rails.api_hostname = "http://example.com:3000"
 
@@ -87,5 +82,13 @@ end
 
 # doing this tests that the content is the same regardless of attribute order etc. 
 def xml_should_be_same(expected, actual)
-  (Hpricot(expected).to_html == Hpricot(actual).to_html).should.equal true
+  expected = Hpricot(expected).to_html
+  actual = Hpricot(actual).to_html
+  
+  if expected != actual
+    puts "\n\n#################### expected\n#{expected}\n\n"
+    puts "\n\n#################### actual:\n#{actual}\n\n"
+  end
+  
+  (expected == actual).should.equal true
 end
