@@ -32,16 +32,16 @@ silence_stream(STDOUT) do
     create_table :people do |t|
       t.string :name
       t.string :current_location
+      t.integer :sex_id
+      t.integer :haircut_id 
     end
 
     create_table :sexes do |t|
       t.string :sex
-      t.integer :person_id
     end
 
     create_table :haircuts do |t|
       t.string :style
-      t.integer :person_id
     end
   end
 end
@@ -64,6 +64,7 @@ if ENV['IRB_TEST_ENVIRONMENT']
   @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
   @pet = @person.pets.create(:species => "cat")
   @sex = @person.sex = Sex.new(:sex => "male")
+  @person.save!
   @haircut = @person.haircut = Haircut.new(:style => "fieser Scheitel")
   @xml_serializer = Restful::Serializers::XMLSerializer.new
   @params_serializer = Restful::Serializers::XMLSerializer.new

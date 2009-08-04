@@ -5,6 +5,7 @@ module Restful
   module Converters
     class ActiveRecord
       def self.convert(model, attributes, options = {})
+        published = []
         
         resource = Restful::ApiModel::Resource.new(
           model.class.to_s.tableize.singularize, { 
@@ -17,6 +18,7 @@ module Restful
         if model.class.apiable_association_table
           resource.values += model.class.apiable_association_table.keys.map do |key|
             if attributes.published?(key.to_sym)
+              published << key.to_sym
               base, path = model.resolve_association_restful_url(key)
               Restful::ApiModel::Link.new(key.to_sym, base, path, compute_extended_type(model, key))
             end
@@ -28,6 +30,7 @@ module Restful
           key, value = attribute
           
           if attributes.published?(key.to_sym)
+            published << key.to_sym
             Restful::ApiModel::Attribute.new(key.to_sym, value, compute_extended_type(model, key))
           end
         end.compact
@@ -37,14 +40,28 @@ module Restful
           if attributes.published?(key.to_sym) 
             # grab the associated resource(s) and run them through conversion
             if resources = Restful::Rails::ActiveRecord::MetadataTools::Utils.convert_collection_to_resources(model, key, attributes.nested(key.to_sym))
+              published << key.to_sym
               if model.class.reflections[key].macro == :has_many
                 Restful::ApiModel::Collection.new(key.to_sym, resources, compute_extended_type(model, key))
-              elsif model.class.reflections[key].macro == :has_one
+              elsif model.class.reflections[key].macro == :has_one or model.class.reflections[key].macro == :belongs_to
                 resources.first
               end
             else
+              published << key.to_sym
               Restful::ApiModel::Attribute.new(key.to_sym, nil, :notype)
             end
+          end
+        end.compact
+
+        ## public methods
+        resource.values += (model.public_methods - Restful::Rails::ActiveRecord::MetadataTools::Utils.simple_attributes_on(model).keys.map(&:to_s)).map do |method_name|
+          if attributes.published?(method_name.to_sym) and not published.include?(method_name.to_sym)
+            value = model.send(method_name.to_sym)
+              if value.is_a? ::ActiveRecord::Base
+                value.to_restful
+              else
+                Restful::ApiModel::Attribute.new(method_name.to_sym, value, compute_extended_type(model, method_name))
+              end
           end
         end.compact
         

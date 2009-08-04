@@ -89,8 +89,8 @@ module Restful
         
         def root_element(resource, options = {})
           [resource.name]
-        end
-        
+          end
+          
         # turns a rexml node into a Resource
         def build_resource(node)
           resource = root_resource(node)
