@@ -17,7 +17,7 @@ module Restful
       #
       #  Grabs a serializer, given...
       #
-      #    .serialize_to(:xml, Resource.new(:animal => "cow"))
+      #    .serialize(:xml, Resource.new(:animal => "cow"))
       #
       def self.serializer(type)
         serializers[type].new

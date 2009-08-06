@@ -28,7 +28,7 @@ module Restful
       end
       
       # invoke serialization
-      def serialize_to(type)
+      def serialize(type)
         serializer = Restful::Serializers::Base.serializer(type)
         serializer.serialize(self)
       end

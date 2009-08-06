@@ -41,6 +41,13 @@ module Restful
         end
 
         module  Utils
+          
+          # called for nested resources. 
+          def self.expand(resource, config)
+            config.restful_options[:nested] = true
+            resource.to_restful(config)
+          end
+          
           def self.dereference(url)
             regexp = Regexp.new("#{ Restful::Rails.api_hostname }\/(.*)\/(.*)")
             m, resource, params = *url.match(regexp)
@@ -61,20 +68,24 @@ module Restful
             end
           end
           
-          # takes an ar model and a key like :people, and returns an array of resources. 
-          def self.convert_collection_to_resources(model, key, config = nil)
+          #
+          #  Takes an ar model and a key like :people, and returns an array of resources. 
+          #  
+          #   TODO: don't load the entire association, only the published attributes (with an appropriate :select). 
+          #   TODO: get some pagination in.
+          #
+          def self.convert_collection_to_resources(model, key, config)
             
-            # load the associated objects. 
-            # TODO: SHOULD not load the entire association, only the published attributes. 
+            # load the associated objects.
             models = model.send(key)
             
             # convert them to_restful. 
             if models
               [*models].map do |m| 
                 if m.respond_to? :to_restful
-                  config ? m.to_restful(config) : m.to_restful
+                  expand(m, config)
                 else
-                  raise "Seems as if you want to export the relation #{ key } of an #{ model.class.to_s } object without making #{ key } apiable ... please correct or elsewise I'll -- nevermind: your problem"
+                  raise "Seems as if you want to export the relation #{ key } of an #{ model.class.to_s } object without making #{ key } apiable."
                 end
               end
             end

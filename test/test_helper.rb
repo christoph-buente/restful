@@ -49,46 +49,20 @@ require 'models/person'
 
 Restful::Rails.api_hostname = "http://example.com:3000"
 
-
-# little convenience when starting irb: it executes some example object automatically:
-if ENV['IRB_TEST_ENVIRONMENT']
-  Person.restful_publish(:name, :current_location, :pets, :sex)
-  Pet.restful_publish(:name, :person_id)
-  Sex.restful_publish(:sex)
-
-  @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
-  @pet = @person.pets.create(:species => "cat")
-  @sex = @person.sex = Sex.new(:sex => "male")
-  @person.save!
-  @haircut = @person.haircut = Haircut.new(:style => "fieser Scheitel")
-  @xml_serializer = Restful::Serializers::XMLSerializer.new
-  @params_serializer = Restful::Serializers::XMLSerializer.new
-  @atom_like_serializer = Restful::Serializers::AtomLikeSerializer.new
-
-  puts "You have the following objects available for playing around:"
-  puts "@person, @pet, @sex, @haircut, @xml_serializer, @params_serializer, @atom_like_serializer" 
-  puts 
-  puts 
-end
-
-
 #
 #  Helper methods
 #
 def reset_config
   Person.restful_config = Restful::Rails::ActiveRecord::Configuration::Config.new
   Pet.restful_config = Restful::Rails::ActiveRecord::Configuration::Config.new  
+  Wallet.restful_config = Restful::Rails::ActiveRecord::Configuration::Config.new  
 end
 
 # doing this tests that the content is the same regardless of attribute order etc. 
 def xml_should_be_same(expected, actual)
   expected = Hpricot(expected).to_html
-  actual = Hpricot(actual).to_html
+  actual = Hpricot(actual).to_html  
+  blame = "\n\n#################### expected\n#{expected}\n\n" "#################### actual:\n#{actual}\n\n"
   
-  if expected != actual
-    puts "\n\n#################### expected\n#{expected}\n\n"
-    puts "\n\n#################### actual:\n#{actual}\n\n"
-  end
-  
-  (expected == actual).should.equal true
+  (expected == actual).should.blaming(blame).equal true
 end

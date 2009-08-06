@@ -9,5 +9,9 @@ class Person < ActiveRecord::Base
     pets.first :order => "age DESC"
   end
   
+  def location_sentence
+    "Hi. I'm currently in #{ current_location }"
+  end
+  
   apiable
 end
