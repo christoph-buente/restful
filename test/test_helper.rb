@@ -10,6 +10,7 @@ require 'action_controller'
 require 'test/spec'
 require 'mocha'
 require 'hpricot'
+require 'xmlsimple'
 
 $:.unshift plugin_lib, plugin_test
 
@@ -53,16 +54,29 @@ Restful::Rails.api_hostname = "http://example.com:3000"
 #  Helper methods
 #
 def reset_config
-  Person.restful_config = Restful::Rails::ActiveRecord::Configuration::Config.new
-  Pet.restful_config = Restful::Rails::ActiveRecord::Configuration::Config.new  
-  Wallet.restful_config = Restful::Rails::ActiveRecord::Configuration::Config.new  
+  Person.restful_config = Restful.cfg
+  Pet.restful_config = Restful.cfg  
+  Wallet.restful_config = Restful.cfg  
+end
+
+
+def xml_cmp a, b
+  eq_all_but_zero = Object.new.instance_eval do
+    def ==(other)
+      Integer(other) == 0 ? false : true
+    end
+    self
+  end
+  a = XmlSimple.xml_in(a.to_s, 'normalisespace' => eq_all_but_zero) 
+  b = XmlSimple.xml_in(b.to_s, 'normalisespace' => eq_all_but_zero) 
+  a == b
 end
 
 # doing this tests that the content is the same regardless of attribute order etc. 
 def xml_should_be_same(expected, actual)
-  expected = Hpricot(expected).to_html
-  actual = Hpricot(actual).to_html  
-  blame = "\n\n#################### expected\n#{expected}\n\n" "#################### actual:\n#{actual}\n\n"
+  expected = Hpricot(expected)
+  actual = Hpricot(actual)
   
-  (expected == actual).should.blaming(blame).equal true
+  blame = "\n\n#################### expected\n#{expected.to_html}\n\n" "#################### actual:\n#{actual.to_html}\n\n" 
+  (xml_cmp(expected, actual)).should.blaming(blame).equal true
 end

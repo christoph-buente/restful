@@ -16,16 +16,6 @@ module Restful
             :url => model.restful_url
         })
         
-        # Links
-        if model.class.apiable_association_table
-          resource.values += model.class.apiable_association_table.keys.map do |key|
-            if config.published?(key.to_sym)
-              published << key.to_sym
-              base, path = model.resolve_association_restful_url(key)
-              Restful::ApiModel::Link.new(key.to_sym, base, path, compute_extended_type(model, key))
-            end
-          end.compact
-        end
                 
         # simple attributes
         resource.values += Restful::Rails::ActiveRecord::MetadataTools::Utils.simple_attributes_on(model).map do |attribute|
@@ -42,10 +32,15 @@ module Restful
           if config.published?(key.to_sym)
             
             # grab the associated resource(s) and run them through conversion
-            if resources = Restful::Rails::ActiveRecord::MetadataTools::Utils.convert_collection_to_resources(model, key, config.nested(key.to_sym))
+            
+            # FIXME
+            nested_config = config.nested(key.to_sym)
+            # nested_config.restful_options[:nested] = true
+            
+            if resources = Restful::Rails::ActiveRecord::MetadataTools::Utils.convert_collection_to_resources(model, key, nested_config)
             
               published << key.to_sym
-              if model.class.reflections[key].macro == :has_many
+              if model.class.reflections[key].macro == :has_many && !nested
                 Restful::ApiModel::Collection.new(key.to_sym, resources, compute_extended_type(model, key))
               elsif model.class.reflections[key].macro == :has_one or model.class.reflections[key].macro == :belongs_to
                 if(model.class.restful_config.expanded? && !nested) 
@@ -63,6 +58,17 @@ module Restful
           end
         end.compact
 
+        # Links
+        if model.class.apiable_association_table
+          resource.values += model.class.apiable_association_table.keys.map do |key|
+            if config.published?(key.to_sym)
+              published << key.to_sym
+              base, path = model.resolve_association_restful_url(key)
+              Restful::ApiModel::Link.new(key.to_sym, base, path, compute_extended_type(model, key))
+            end
+          end.compact
+        end
+        
         # public methods
         resource.values += (model.public_methods - Restful::Rails::ActiveRecord::MetadataTools::Utils.simple_attributes_on(model).keys.map(&:to_s)).map do |method_name|
           if config.published?(method_name.to_sym) and not published.include?(method_name.to_sym)
@@ -94,6 +100,7 @@ module Restful
           if column = record.class.columns_hash[attribute_name]
             type_symbol = column.send(:simplified_type, column.sql_type)
           else
+
             type_symbol = record.send(attribute_name).class.to_s.underscore.to_sym
           end
 

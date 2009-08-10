@@ -34,4 +34,8 @@ module Restful
       super
     end
   end
+  
+  def self.cfg(*options)
+    Restful::Rails::ActiveRecord::Configuration::Config.new(*options)
+  end
 end

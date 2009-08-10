@@ -24,7 +24,7 @@ module Restful
           #  overriden. 
           #
           def restful_publish(*fieldnames) # declarative setter method
-            self.restful_config.fields = fieldnames
+            self.restful_config = Restful.cfg(*fieldnames)
           end
         end
     
@@ -36,13 +36,13 @@ module Restful
           #  by passing in something like @pet.to_restful(:name, :species).
           #
           def to_restful(config = self.class.restful_config)
-            
-            # convert to config object if not already one
-            if config && !config.is_a?(Config)
-              config = Config.new(config)
-              config.merge!(self.class.restful_config) if !config.has_fields?
-            end
 
+            if config && !config.is_a?(Config)
+             config = Config.new(config)
+            end
+            
+            config.whitelisted = self.class.restful_config.whitelisted if config.whitelisted.empty?
+            
             Restful::Converters::ActiveRecord.convert(self, config)
           end
           
@@ -56,66 +56,48 @@ module Restful
           end
         end
         
-        class Config # configures what attributes are exposed to the api. for a single resource. 
-          attr_accessor :fields
+        class Config # configures what attributes are exposed to the api. for a single resource.
           
-          # set; eg :name, :pets => [:name, :species]
-          def initialize(*fields)
-            self.fields = [fields].flatten.compact
-            self.fields += [{ :restful_options => {}}] unless Config.has_restful_options?(self.fields)
+          attr_accessor :whitelisted, :restful_options
+          
+          def initialize(*fields) # set; eg :name, :pets => [:name, :species]
+            @whitelisted, @restful_options = split_into_whitelist_and_restful_options([fields].flatten.compact)
+          end
+
+          def published?(key)
+            @whitelisted.include?(key) || !!@whitelisted.select { |field| field.is_a?(Hash)  && field.keys.include?(key) }.first
           end
 
           def expanded? # if nothing was set, this defaults to true. 
-            restful_options[:expansion] != :collapsed
-          end
+            @restful_options[:expansion] != :collapsed
+          end       
 
-          def whitelisted
-            Config.remove_restful_options(@fields)
-          end          
-                    
-          def has_fields?
-            !self.whitelisted.empty?
-          end
-          
-          def published?(key)
-            @all_keys = self.whitelisted.map { |field| field.is_a?(Hash) ? field.keys : field }.flatten
-            @all_keys.include?(key) if @all_keys
-          end
-
-          # replaces with another configuration object's fields
-          def merge!(config)
-            self.fields.unshift(*config.whitelisted)
-            self.restful_options.merge! config.restful_options if config.restful_options
-          end
-          
           def nested?
             !!restful_options[:nested]
           end
 
           def nested(key)
-            returning Config.new do |config|
-              definition = @fields.select { |field| field.is_a?(Hash)  && field.keys.include?(key) }.first
-              config.fields = definition[key] if definition
-            end
+            definition = @whitelisted.select { |field| field.is_a?(Hash)  && field.keys.include?(key) }.first
+            Config.new((definition[key] if definition))
           end
 
-          def restful_options
-            opts = self.fields.select { |el| el.is_a?(Hash) && el.keys.include?(:restful_options) }.first
-            opts[:restful_options] if opts
-          end
-                    
-          def has_restful_options?
-            Config.has_restful_options?(self.fields)
-          end
+          private
           
-          def self.has_restful_options?(array)
-            !array.select { |el| el.is_a?(Hash) && el[:restful_options] }.empty?
-          end
-
-          # removes restful_options from the end of the array if present, and returns a copy. non destructive. 
-          def self.remove_restful_options(array)
-            array.select { |el| !(el.is_a?(Hash) && el.keys.include?(:restful_options)) }
-          end
+            def split_into_whitelist_and_restful_options(array)
+              options = {}
+        
+              return array.map do |el|
+                if el.is_a? Hash
+                  el = el.clone
+                  deleted = el.delete(:restful_options) 
+                  options.merge!(deleted) if deleted
+                  el = nil if el == {}
+                end
+              
+                el
+              end.compact, options
+            end
+            
         end
       end
     end

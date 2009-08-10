@@ -15,6 +15,7 @@ module Restful
         end
         
         module ClassMethods
+          
           def apiable
             cache_association_restful_url_metadata
           end
@@ -46,6 +47,10 @@ module Restful
           def self.expand(resource, config)
             config.restful_options[:nested] = true
             resource.to_restful(config)
+          end
+
+          def self.link(key, model, config)
+            Restful::ApiModel::Link.new(key.to_sym, "base", "path", "link")
           end
           
           def self.dereference(url)
@@ -83,7 +88,9 @@ module Restful
             if models
               [*models].map do |m| 
                 if m.respond_to? :to_restful
-                  expand(m, config)
+                  config.nested? ?
+                    link(key, m, config) :
+                    expand(m, config)
                 else
                   raise "Seems as if you want to export the relation #{ key } of an #{ model.class.to_s } object without making #{ key } apiable."
                 end

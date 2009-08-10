@@ -69,7 +69,7 @@ module Restful
           end
 
           if value.extended_type != :string and value.extended_type != :notype
-            decorations[:type] = type
+            decorations[:type] = value.extended_type
           end
 
           if value.extended_type == :datetime

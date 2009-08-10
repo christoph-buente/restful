@@ -30,7 +30,7 @@ context "api publishing with nesting" do
     @person = Person.create(:name => "Joe Bloggs", :current_location => "Under a tree")
     @pet = @person.pets.create(:name => "Mietze", :species => "cat")
     
-    Pet.any_instance.expects(:to_restful).with { |arg| arg.fields == [:name, :species] }
+    Pet.any_instance.expects(:to_restful).with { |arg| arg.whitelisted == [:name, :species] }
     @person.to_restful
   end
 end
