@@ -9,7 +9,7 @@ module Restful
         published = []
         nested = config.nested?
 
-        resource = Restful::ApiModel::Resource.new(
+        resource = Restful.resource(
           model.class.to_s.tableize.demodulize.singularize, { 
             :base => Restful::Rails.api_hostname, 
             :path => model.restful_path,
@@ -18,12 +18,12 @@ module Restful
         
                 
         # simple attributes
-        resource.values += Restful::Rails::ActiveRecord::MetadataTools::Utils.simple_attributes_on(model).map do |attribute|
+        resource.values += Restful::Rails.tools.simple_attributes_on(model).map do |attribute|
           key, value = attribute
           
           if config.published?(key.to_sym)
             published << key.to_sym
-            Restful::ApiModel::Attribute.new(key.to_sym, value, compute_extended_type(model, key))
+            Restful.attr(key.to_sym, value, compute_extended_type(model, key))
           end
         end.compact
                 
@@ -37,23 +37,23 @@ module Restful
             nested_config = config.nested(key.to_sym)
             # nested_config.restful_options[:nested] = true
             
-            if resources = Restful::Rails::ActiveRecord::MetadataTools::Utils.convert_collection_to_resources(model, key, nested_config)
+            if resources = Restful::Rails.tools.convert_collection_to_resources(model, key, nested_config)
             
               published << key.to_sym
               if model.class.reflections[key].macro == :has_many && !nested
-                Restful::ApiModel::Collection.new(key.to_sym, resources, compute_extended_type(model, key))
+                Restful.collection(key.to_sym, resources, compute_extended_type(model, key))
               elsif model.class.reflections[key].macro == :has_one or model.class.reflections[key].macro == :belongs_to
                 if(model.class.restful_config.expanded? && !nested) 
                   returning(resources.first) do |res|
                     res.name = key
                   end
                 else
-                  Restful::ApiModel::Link.new("#{ key }-restful-url", Restful::Rails.api_hostname, model.send(key).restful_path, compute_extended_type(model, key))
+                  Restful.link("#{ key }-restful-url", Restful::Rails.api_hostname, model.send(key).restful_path, compute_extended_type(model, key))
                 end
               end
             else
               published << key.to_sym
-              Restful::ApiModel::Attribute.new(key.to_sym, nil, :notype)
+              Restful.attr(key.to_sym, nil, :notype)
             end
           end
         end.compact
@@ -64,27 +64,27 @@ module Restful
             if config.published?(key.to_sym)
               published << key.to_sym
               base, path = model.resolve_association_restful_url(key)
-              Restful::ApiModel::Link.new(key.to_sym, base, path, compute_extended_type(model, key))
+              Restful.link(key.to_sym, base, path, compute_extended_type(model, key))
             end
           end.compact
         end
         
         # public methods
-        resource.values += (model.public_methods - Restful::Rails::ActiveRecord::MetadataTools::Utils.simple_attributes_on(model).keys.map(&:to_s)).map do |method_name|
+        resource.values += (model.public_methods - Restful::Rails.tools.simple_attributes_on(model).keys.map(&:to_s)).map do |method_name|
           if config.published?(method_name.to_sym) and not published.include?(method_name.to_sym)
             value = model.send(method_name.to_sym)
               sanitzed_method_name = method_name.tr("!?", "").tr("_", "-").to_sym
               
               if value.is_a? ::ActiveRecord::Base
                 if model.class.restful_config.expanded? && !nested
-                  returning Restful::Rails::ActiveRecord::MetadataTools::Utils.expand(value, config.nested(method_name.to_sym)) do |expanded|
+                  returning Restful::Rails.tools.expand(value, config.nested(method_name.to_sym)) do |expanded|
                     expanded.name = sanitzed_method_name
                   end
                 else
-                  Restful::ApiModel::Link.new("#{ sanitzed_method_name }-restful-url", Restful::Rails.api_hostname, value.restful_path, compute_extended_type(model, key))
+                  Restful.link("#{ sanitzed_method_name }-restful-url", Restful::Rails.api_hostname, value.restful_path, compute_extended_type(model, key))
                 end
               else
-                Restful::ApiModel::Attribute.new(sanitzed_method_name, value, compute_extended_type(model, method_name))
+                Restful.attr(sanitzed_method_name, value, compute_extended_type(model, method_name))
               end
           end
         end.compact
@@ -107,7 +107,7 @@ module Restful
           case type_symbol
             when :text
               :string
-            when :time
+            when :time 
               :datetime
             else
               type_symbol

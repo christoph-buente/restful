@@ -50,7 +50,7 @@ module Restful
           end
 
           def self.link(key, model, config)
-            Restful::ApiModel::Link.new(key.to_sym, "base", "path", "link")
+            Restful.link(key.to_sym, "base", "path", "link")
           end
           
           def self.dereference(url)

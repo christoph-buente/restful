@@ -14,7 +14,7 @@ context "active record metadata" do
   end
   
   specify "should be able to convert a collection to an array of resources" do
-    resources = Restful::Rails::ActiveRecord::MetadataTools::Utils.convert_collection_to_resources(@person, :pets, Restful.cfg)
+    resources = Restful::Rails.tools.convert_collection_to_resources(@person, :pets, Restful.cfg)
     pet = resources.first
 
     resources.size.should.equal 1    

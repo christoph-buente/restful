@@ -24,22 +24,32 @@ ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :dbfile  => ":mem
 
 silence_stream(STDOUT) do
   ActiveRecord::Schema.define do
+    
     create_table :pets do |t|
       t.integer :age, :default => 10
       t.string :name
       t.integer :species
       t.integer :person_id
+      
+      t.timestamp :created_at
+      t.timestamp :updated_at
     end
 
     create_table :people do |t|
       t.string :name
       t.string :current_location
       t.string :biography
+
+      t.timestamp :created_at      
+      t.timestamp :updated_at
     end
 
     create_table :wallets do |t|
       t.string :person_id
       t.string :contents
+      
+      t.timestamp :created_at
+      t.timestamp :updated_at
     end
   end
 end

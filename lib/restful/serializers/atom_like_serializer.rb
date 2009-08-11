@@ -16,11 +16,11 @@ module Restful
           url_base = node.attribute(:base, :xml)
           me_node = node.delete_element("link[@rel='self']")
           own_url = me_node.attribute(:href)
-          Restful::ApiModel::Resource.new(node.name, :path => own_url, :base => url_base)
+          Restful.resource(node.name, :path => own_url, :base => url_base)
         end
       
         def build_link(el, type)
-          Restful::ApiModel::Link.new(revert_link_name(el.attribute('rel')), nil, el.attribute('href'), type)
+          Restful.link(revert_link_name(el.attribute('rel')), nil, el.attribute('href'), type)
         end
         
         def calculate_node_type(el)

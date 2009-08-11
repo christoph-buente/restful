@@ -11,7 +11,7 @@ class Person < ActiveRecord::Base
   
   def location_sentence
     "Hi. I'm currently in #{ current_location }"
-  end
+  end  
   
   apiable
 end

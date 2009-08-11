@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper.rb'
 
 context "params serializer" do
   setup do 
-    Person.restful_publish(:name, :current_location, :pets, :wallet)
+    Person.restful_publish(:name, :current_location, :pets, :wallet, :created_at)
     Pet.restful_publish(:name)
     Wallet.restful_publish(:contents)
   
@@ -34,6 +34,7 @@ context "params serializer" do
 <person>
   <restful-url type="link">http://example.com:3000/people/#{ @person.id }</restful-url>
   <name>Joe Bloggs</name>
+  <created-at type="datetime">#{ @person.created_at.xmlschema }</created-at>
   <current-location>Under a tree</current-location>
   <pets type="array">
     <pet>

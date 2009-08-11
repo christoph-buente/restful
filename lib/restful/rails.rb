@@ -10,5 +10,13 @@ module Restful
     def self.api_hostname
       Thread.current[:api_hostname]
     end
+    
+    #
+    #  Shortcuts past namespaces
+    #
+    def self.tools
+      Restful::Rails::ActiveRecord::MetadataTools::Utils
+    end
+    
   end
 end

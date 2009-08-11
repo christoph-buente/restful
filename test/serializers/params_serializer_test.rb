@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper.rb'
 context "params serializer" do
   
   setup do 
-    Person.restful_publish(:name, :current_location, :pets, :wallet)
+    Person.restful_publish(:name, :current_location, :pets, :wallet, :created_at)
     Pet.restful_publish(:name)
     Wallet.restful_publish(:contents)
     
@@ -24,6 +24,7 @@ context "params serializer" do
       {
         :name => "Joe Bloggs",
         :current_location => "Under a tree",
+        :created_at => @person.created_at,
         :wallet_attributes=>{:contents=>"an old photo, 5 euros in coins"},
         :pets_attributes => [ {:name => "mietze"} ]
       }

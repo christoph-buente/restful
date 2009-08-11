@@ -25,7 +25,7 @@ module Restful
             
             params["#{value.name.to_sym}_attributes".to_sym] = array
           elsif value.type == :link
-            params[value.name] = Restful::Rails::ActiveRecord::MetadataTools::Utils.dereference(value.value)
+            params[value.name] = Restful::Rails.tools.dereference(value.value)
           elsif value.type == :resource
             params["#{value.name.to_sym}_attributes".to_sym] = serialize(value)
           else # plain ole

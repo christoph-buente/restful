@@ -20,6 +20,7 @@ module Restful
           add_link_to(resource, xml, :self => true)
                     
           resource.values.each do |value|
+            
             if value.type == :collection # serialize the stuffs
               resources = value.value
               if first_resource = resources.first
@@ -55,9 +56,16 @@ module Restful
         end
       
         def add_tag(builder, value)
+          string_value = case value.extended_type
+          when :datetime
+            value.value.xmlschema
+          else
+            value.value.to_s
+          end
+          
           builder.tag!(
             value.name.to_s.dasherize,
-            value.value.to_s,
+            string_value,
             decorations(value)
           )
         end
@@ -101,12 +109,14 @@ module Restful
             resource.values << case type
             
             when :link : build_link(el, type)
+            when :datetime
+              Restful.attr(el.name, DateTime.parse(el.text), type)
             when :resource
               build_resource(el)
             when :array
-              Restful::ApiModel::Collection.new(el.name, el.elements.map { |child| build_resource(child) }, type)
+              Restful.collection(el.name, el.elements.map { |child| build_resource(child) }, type)
             else 
-              Restful::ApiModel::Attribute.new(el.name, el.text, type)
+              Restful.attr(el.name, el.text, type)
             end
           end
 
@@ -122,12 +132,12 @@ module Restful
         end
         
         def build_link(el, type)
-          Restful::ApiModel::Link.new(revert_link_name(el.name), nil, el.text, type)
+          Restful.link(revert_link_name(el.name), nil, el.text, type)
         end
         
         def root_resource(node)
           url = node.delete_element("restful-url").try(:text)
-          Restful::ApiModel::Resource.new(node.name, :url => url)
+          Restful.resource(node.name, :url => url)
         end
     end
   end

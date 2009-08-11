@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper.rb'
 context "params serializer" do
 
   setup do 
-    Person.restful_publish(:name, :current_location, :pets, :wallet)
+    Person.restful_publish(:name, :current_location, :pets, :wallet, :created_at)
     Pet.restful_publish(:name)
     Wallet.restful_publish(:contents)
   
@@ -23,6 +23,7 @@ context "params serializer" do
     expected = <<EXPECTED    
 <?xml version="1.0" encoding="UTF-8"?>
 <person xml:base="http://example.com:3000">
+  <created-at>#{ @person.created_at.xmlschema }</created-at>
   <link rel="self" href="/people/#{ @person.id }"/>
   <name>Joe Bloggs</name>
   <current-location>Under a tree</current-location>

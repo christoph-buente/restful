@@ -35,7 +35,28 @@ module Restful
     end
   end
   
+  #
+  #  Shortcuts past the namespaces
+  #
+  
   def self.cfg(*options)
     Restful::Rails::ActiveRecord::Configuration::Config.new(*options)
   end
+  
+  def self.attr(*options)
+    Restful::ApiModel::Attribute.new(*options)    
+  end
+  
+  def self.link(*options)
+    Restful::ApiModel::Link.new(*options)
+  end
+  
+  def self.collection(*options)
+    Restful::ApiModel::Collection.new(*options)
+  end
+  
+  def self.resource(*options)
+    Restful::ApiModel::Resource.new(*options)
+  end
+  
 end
