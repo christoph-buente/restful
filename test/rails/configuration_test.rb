@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/test_helper.rb'
+require File.dirname(__FILE__) + '/../test_helper.rb'
 
 context "Configuration" do
   specify "should have an empty whitelist if only restful options are passed in" do

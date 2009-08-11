@@ -22,11 +22,12 @@ module Restful
           resource.values.each do |value|
             if value.type == :collection # serialize the stuffs
               resources = value.value
-              
-              xml.tag!(resources.first.name.pluralize, collections_decorations) do
-                resources.each do |resource|
-                  serialize(resource,  { :instruct => false, :builder => xml })
-                end              
+              if first_resource = resources.first
+                xml.tag!(first_resource.name.pluralize, collections_decorations) do
+                  resources.each do |resource|
+                    serialize(resource,  { :instruct => false, :builder => xml })
+                  end              
+                end
               end
               
             elsif value.type == :link

@@ -1,6 +1,6 @@
-require File.dirname(__FILE__) + '/test_helper.rb'
+require File.dirname(__FILE__) + '/../test_helper.rb'
 
-context "api publishing" do
+context "restful publish" do
   teardown do
     reset_config
   end
@@ -12,6 +12,11 @@ context "api publishing" do
     Pet.restful_config.published?(:pets).should.equal false
     Pet.restful_config.published?(:species).should.equal false
   end
+  
+  specify "should have restful_options as an empty hash after calling restful_publish" do
+    Person.restful_publish(:name, :pets => [:name, :species])
+    Person.restful_config.restful_options.should.==({})
+  end
 end
 
 context "api publishing with nesting" do
@@ -21,7 +26,6 @@ context "api publishing with nesting" do
  
   specify "should result in a method .published?(:attr_key) return true for nested attributes" do
     Person.restful_publish(:name, :pets => [:name, :species])
-    
     Person.restful_config.published?(:pets).should.equal true
   end
   

@@ -34,6 +34,7 @@ silence_stream(STDOUT) do
     create_table :people do |t|
       t.string :name
       t.string :current_location
+      t.string :biography
     end
 
     create_table :wallets do |t|
@@ -44,9 +45,9 @@ silence_stream(STDOUT) do
 end
 
 require plugin_root + '/init'
-require 'models/pet'
-require 'models/wallet'
-require 'models/person'
+require 'fixtures/models/pet'
+require 'fixtures/models/wallet'
+require 'fixtures/models/person'
 
 Restful::Rails.api_hostname = "http://example.com:3000"
 
@@ -58,7 +59,6 @@ def reset_config
   Pet.restful_config = Restful.cfg  
   Wallet.restful_config = Restful.cfg  
 end
-
 
 def xml_cmp a, b
   eq_all_but_zero = Object.new.instance_eval do
